@@ -291,14 +291,14 @@ window.addEventListener('hashchange',()=>show(location.hash.slice(1)||'home'));
 function show(r){
   if(!ROUTES.includes(r))r='home';
   if(!P.onboarded&&r!=='home'&&!ASS.active){r='home';}
-  route=r;
+  route=r;setSheet(false);
   document.querySelectorAll('.nav[data-r]').forEach(b=>b.setAttribute('aria-current',b.dataset.r===r?'page':'false'));
   $('#home').hidden=r!=='home';$('#boardScreen').hidden=r==='home';
   if(r==='home')renderHome();
   else if(r==='learn')openLearn();
   else if(r==='puzzles')openPuzzles();
   else if(r==='play')openPlay();
-  setSheet(false);fit();window.scrollTo(0,0);
+  document.body.classList.toggle('onboarding',!P.onboarded);fit();window.scrollTo(0,0);
 }
 function setPanel(html){$('#panel').innerHTML=html;}
 function setStrips(top,bottom){$('#stripTop').innerHTML=top||'';$('#stripBottom').innerHTML=bottom||'';}
@@ -332,7 +332,7 @@ function currentStage(){
 }
 function nextItem(){const st=currentStage();return {st,it:st.items.find(it=>!itemDone(it))||st.items[st.items.length-1]};}
 function renderHome(){
-  const h=$('#home');
+  const h=$('#home');document.body.classList.toggle('onboarding',!P.onboarded);
   if(!P.onboarded){h.innerHTML=onboardHTML();wireOnboard();return;}
   const tgt=TARGETS.find(t=>t.r===P.target)||TARGETS[2];
   const pct=Math.max(2,Math.min(100,(P.rating-P.start)/Math.max(1,P.target-P.start)*100));
@@ -344,11 +344,12 @@ function renderHome(){
       <p class="eyebrow">Your level</p>
       <h1>${reached?'Goal reached!':`${P.rating} on the way to ${P.target}`}</h1>
       <div class="levelmeter"><div class="bar"><i style="width:${pct}%"></i></div><div class="ends"><span>Start ${P.start}</span><span>Now ${P.rating}</span><span>Goal ${P.target} · ${esc(tgt.t)}</span></div></div>
-      <div class="goalrow"><span class="g">Goal: <b>${P.target}</b> · ${esc(tgt.t)}</span><button class="btn sm" id="chgGoal">Change goal</button><button class="btn sm ghost" id="chgLevel">Set my level</button></div>
+      <div class="goalrow"><span class="g">Goal: <b>${P.target}</b> · ${esc(tgt.t)}</span><button class="btn sm" id="chgGoal">Change goal</button><button class="btn sm" id="chgLevel">Set my level</button></div>
       <div class="targets" id="goalPick" hidden>${TARGETS.map(t=>`<button class="target" data-t="${t.r}" aria-pressed="${t.r===P.target}"><b>${t.r}</b><span>${esc(t.t)}</span></button>`).join('')}</div>
       <div id="levelPick" hidden>${levelInputHTML()}</div>
       <p class="small desk-only" style="color:var(--ink-2)">Your level is an estimate that moves with every puzzle, lesson, and game. It is this app's own scale, not an official rating.</p>
     </section>
+    ${P.game&&P.game.moves&&P.game.moves.length?`<section class="nextup"><div class="ico">${glyph(BOTS[P.game.bot].icon)}</div><div class="txt"><span class="eyebrow">Unfinished game</span><b>vs ${esc(BOTS[P.game.bot].name)}</b><span class="small">${Math.ceil(P.game.moves.length/2)} moves played</span></div><button class="btn go" id="resumeGame">Resume</button></section>`:''}
     <section class="nextup"><div class="ico">${glyph(it.k==='game'?BOTS[it.bot].icon:st.icon)}</div><div class="txt"><span class="eyebrow">Up next · ${esc(st.title)}</span><b>${esc(itemLabel(it))}</b><span class="small">${esc(itemKind(it))}</span></div><button class="btn go big" id="goNext">Start</button></section>
     ${STAGES.map((s,i)=>{const pr=stageProgress(s);const isCur=s===st;const tested=P.placed&&s.max<=P.placed&&pr.done<pr.total;const done=pr.done===pr.total;
       return `<section class="stage ${done?'done':''} ${isCur?'current':''}"><button class="stage-head" data-stage="${i}" aria-expanded="${isCur}"><span class="num">${done?'✓':i+1}</span><span class="t"><b>${esc(s.title)}</b><span>Level ${s.min}–${s.max}${tested?' · placed above this stage':''}${P.target>s.min&&P.target<=s.max?' · your goal':''}</span></span><span class="pct">${pr.done}/${pr.total}</span></button>
@@ -361,6 +362,7 @@ function renderHome(){
     <section class="card"><h3>Placement</h3><p class="small">Not sure your level is right? Retake the placement test any time.</p><div class="row"><button class="btn sm" id="retest">Retake placement test</button><button class="btn sm ghost" id="resetAll">Reset all progress</button></div><div id="resetConfirm"></div></section>
    </div></div>`;
   $('#goNext').onclick=()=>openItem(it);
+  const rs=$('#resumeGame');if(rs)rs.onclick=()=>go('play');
   $('#chgGoal').onclick=()=>{const g=$('#goalPick');g.hidden=!g.hidden;$('#levelPick').hidden=true;};
   $('#chgLevel').onclick=()=>{const g=$('#levelPick');g.hidden=!g.hidden;$('#goalPick').hidden=true;};
   wireLevelInput(()=>renderHome());
@@ -383,7 +385,7 @@ function onboardHTML(){
    <div class="row"><button class="btn go big" id="obDone">Build my path</button></div></div>`;
 }
 function wireOnboard(){
-  if(onboardStep===0){$('#obNew').onclick=()=>{P.rating=200;P.start=200;P.placed=null;onboardStep=1;save();renderHome();};$('#obTest').onclick=()=>startAssessment();$('#obKnow').onclick=()=>{$('#levelPick').hidden=false;$('#lvlIn').focus();};wireLevelInput(()=>{onboardStep=1;renderHome();});}
+  if(onboardStep===0){$('#obNew').onclick=()=>{P.rating=200;P.start=200;P.placed=null;onboardStep=1;save();renderHome();};$('#obTest').onclick=()=>startAssessment();$('#obKnow').onclick=()=>{$('#levelPick').hidden=false;$('#levelPick').scrollIntoView({behavior:'smooth',block:'center'});$('#lvlIn').focus({preventScroll:true});};wireLevelInput(()=>{onboardStep=1;renderHome();});}
   else{document.querySelectorAll('.target').forEach(b=>b.onclick=()=>{P.target=+b.dataset.t;document.querySelectorAll('.target').forEach(x=>x.setAttribute('aria-pressed',x===b));});
     $('#obDone').onclick=()=>{if(P.target<=P.rating)P.target=(TARGETS.find(t=>t.r>P.rating)||TARGETS[TARGETS.length-1]).r;P.onboarded=true;save();updateLevelChips();renderHome();};}
 }
@@ -656,7 +658,20 @@ function finishAssessment(){
 
 // ---------- PLAY vs coach ----------
 const PL={pending:null,phase:'setup',bot:null,color:'w',states:[],moves:[],sans:[],an:[],gen:0,thinking:false,over:null,view:null,hint:0,hintMove:null,item:null,lastMsg:null,nocoach:false};
+function saveGame(){
+  if(PL.phase==='playing'&&!PL.over&&PL.states.length)P.game={bot:PL.bot,color:PL.color,moves:PL.moves.map(uci),an:PL.an,item:PL.item,nocoach:PL.nocoach};
+  else delete P.game;
+  save();
+}
+function restoreGame(g){
+  PL.gen++;Object.assign(PL,{phase:'playing',bot:g.bot,color:g.color,item:g.item||null,nocoach:!!g.nocoach,states:[parseFEN(START_FEN)],moves:[],sans:[],an:[],thinking:false,over:null,view:null,hint:0,hintMove:null});
+  PL.keys=[posKey(PL.states[0])];
+  for(const u of g.moves){const s=curState(),m=moveFromUci(s,u);if(!m)break;PL.sans.push(san(s,m));PL.moves.push(m);const ns=makeMove(s,m);PL.states.push(ns);PL.keys.push(posKey(ns));}
+  PL.an=(g.an||[]).slice(0,PL.moves.length);while(PL.an.length<PL.moves.length)PL.an.push(null);
+  PL.lastMsg={kind:'info',html:`<p class="tldr">Welcome back. Your game against ${esc(BOTS[PL.bot].name)} continues where you left off.</p>`};
+}
 function openPlay(){
+  if(!PL.pending&&PL.phase==='setup'&&!PL.moves.length&&P.game&&P.game.moves){restoreGame(P.game);setupPlayBoard();const a=PL.an.filter(Boolean).slice(-1)[0];if(a)setEval(a.whiteScore);else resetEval();renderPlay();if(curState().turn!==PL.color)aiTurn();return;}
   if(PL.pending){const it=PL.pending;PL.pending=null;PL.item=it;PL.bot=it.bot;PL.nocoach=!!it.nocoach;PL.phase='setup';}
   if(PL.bot==null){const best=BOTS.reduce((a,b,i)=>Math.abs(b.rating-P.rating)<Math.abs(BOTS[a].rating-P.rating)?i:a,0);PL.bot=best;}
   if(PL.phase==='setup'){renderPlaySetup();return;}
@@ -680,9 +695,10 @@ function renderPlaySetup(){
   document.querySelectorAll('[data-b]').forEach(b=>b.onclick=()=>{PL.bot=+b.dataset.b;renderPlaySetup();});
   document.querySelectorAll('[data-c]').forEach(b=>b.onclick=()=>{PL.color=b.dataset.c==='r'?(Math.random()<.5?'w':'b'):b.dataset.c;renderPlaySetup();});
   $('#tgCoachSetup').onchange=e=>{if(PL.nocoach){PL.nocoach=false;}P.coach=e.target.checked;save();};
-  $('#startGame').onclick=startGame;setHandle('Settings');
+  $('#startGame').onclick=startGame;setHandle('Choose opponent');if(isPhone()&&!sheetOpen)setSheet(true);
 }
 function startGame(){
+  setSheet(false);
   PL.gen++;Object.assign(PL,{phase:'playing',states:[parseFEN(START_FEN)],moves:[],sans:[],an:[],thinking:false,over:null,view:null,hint:0,hintMove:null,lastMsg:null,keys:[]});
   PL.keys=[posKey(PL.states[0])];
   setupPlayBoard();
@@ -746,7 +762,7 @@ function renderPlay(){
     <div class="row">${over?`<button class="btn go" id="newGame">New game</button><button class="btn" id="rematch">Rematch</button>`:`<button class="btn go" id="hintBtn" ${PL.thinking||curState().turn!==PL.color?'disabled':''}>${PL.hint===1?'Show the move':'Hint'}</button><button class="btn" id="takeBack" ${PL.moves.length?'':'disabled'}>Take back</button><button class="btn ghost" id="flip">Flip</button><button class="btn ghost" id="resign">Resign</button>`}</div>
     <div id="resignConfirm"></div>
    </div>`);
-  setHandle(over?'Review & moves':'Full explanation & moves');
+  setHandle(over?'Review & moves':'Full explanation & moves');saveGame();
   const ml=$('#moveList');if(ml)ml.scrollTop=ml.scrollHeight;
   document.querySelectorAll('[data-ply]').forEach(b=>b.onclick=()=>viewPly(+b.dataset.ply));
   const on=(id,f)=>{const e=$(id);if(e)e.onclick=f;};
