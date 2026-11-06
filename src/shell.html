@@ -1,0 +1,48 @@
+<title>Rook &amp; Learn</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=Figtree:wght@400;600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+Symbols+2&text=%E2%99%94%E2%99%95%E2%99%96%E2%99%97%E2%99%98%E2%99%99%E2%99%9A%E2%99%9B%E2%99%9C%E2%99%9D%E2%99%9E%E2%99%9F&display=block">
+<style>
+/*CSS*/
+</style>
+<div class="app">
+  <nav class="rail" aria-label="Main">
+    <div class="brand"><span class="mark">&#x265E;&#xFE0E;</span>Rook &amp; Learn</div>
+    <!--NAV-->
+    <div class="lvl">Your level<b data-level>200</b></div>
+  </nav>
+  <main>
+    <div class="topbar"><div class="brand"><span class="mark">&#x265E;&#xFE0E;</span>Rook &amp; Learn</div><span class="lvlchip">Level <span data-level>200</span></span></div>
+    <div class="screen" id="home"></div>
+    <div class="screen" id="boardScreen" hidden>
+      <div class="play-grid">
+        <div class="board-col">
+          <div class="strip" id="stripTop"></div>
+          <div class="board-wrap">
+            <div class="evalbar" id="evalbar"><div class="w" style="height:50%"></div><span class="lab-b"></span><span class="lab-w"></span></div>
+            <div style="position:relative;flex:1;min-width:0">
+              <div class="board" id="board"></div>
+              <div class="overlay" id="overlay" hidden></div>
+            </div>
+          </div>
+          <div class="strip" id="stripBottom"></div>
+        </div>
+        <aside class="panel sheet" id="sheet">
+          <button class="handle" id="sheetHandle" aria-expanded="false"><span class="grip"></span><span id="handleLbl">Show details</span></button>
+          <div id="panel"></div>
+          <div class="board-tools m-more" id="boardTools"></div>
+        </aside>
+      </div>
+    </div>
+  </main>
+  <nav class="tabbar" aria-label="Main"><!--NAV--></nav>
+</div>
+<script id="engine-src">
+/*ENGINE*/
+</script>
+<script>
+/*DATA*/
+/*APP*/
+</script>

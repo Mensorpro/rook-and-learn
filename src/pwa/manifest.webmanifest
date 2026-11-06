@@ -1,0 +1,16 @@
+{
+  "name": "Rook & Learn",
+  "short_name": "Rook & Learn",
+  "description": "Learn chess with lessons, puzzles, and a coach that explains every move.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#211f1c",
+  "theme_color": "#1a1816",
+  "icons": [
+    {"src": "icon-192.png", "sizes": "192x192", "type": "image/png"},
+    {"src": "icon-512.png", "sizes": "512x512", "type": "image/png"},
+    {"src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable"}
+  ]
+}
